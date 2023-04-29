@@ -37,7 +37,7 @@
 
 		if (sign === '/') {
 			result = get_number();
-			right = get_number();
+			right = Math.max(1, get_number());
 			left = result * right;
 		} else {
 			left = get_number();
