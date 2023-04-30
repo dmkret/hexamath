@@ -69,12 +69,12 @@
 		{/if}
 	</div>
 
+	<input autofocus on:blur={(e) => e.currentTarget.focus()} on:keydown={handle_keydown} />
+
 	<div class="answer">
 		{answer}
 	</div>
 </section>
-
-<svelte:window on:keydown={handle_keydown} />
 
 <style lang="scss">
 	section {
@@ -85,6 +85,15 @@
 		row-gap: 24px;
 		justify-items: stretch;
 		grid-template-rows: 1fr auto 1fr;
+	}
+
+	input {
+		position: absolute;
+		top: 0;
+		height: 0;
+		opacity: 0;
+		border: none;
+		outline: none;
 	}
 
 	.task {
