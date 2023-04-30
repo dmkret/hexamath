@@ -69,6 +69,7 @@
 		{/if}
 	</div>
 
+	<!-- svelte-ignore a11y-autofocus -->
 	<input autofocus on:blur={(e) => e.currentTarget.focus()} on:keydown={handle_keydown} />
 
 	<div class="answer">
