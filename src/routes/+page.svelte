@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	let answer = '';
+	let input: HTMLInputElement;
 	let task: null | {
 		sign: string;
 		left: number;
@@ -9,25 +9,30 @@
 		result: number;
 	};
 
-	$: answer, check_answer();
+	const handle_input = (e: any) => {
+		if (!e.currentTarget) return;
+		if (!(e instanceof InputEvent)) return;
+		if (!(e.target instanceof HTMLInputElement)) return;
 
-	const handle_keydown = (e: KeyboardEvent) => {
-		if (e.code === 'Backspace') {
-			answer = answer.slice(0, answer.length - 1);
-			return;
-		}
+		const value = e.target.value
+			.split('')
+			.filter((ch, index) => {
+				if (ch === '-' && index === 0) return true;
+				if (/[0-9A-F]/i.test(ch)) return true;
+				return false;
+			})
+			.join('');
 
-		if (e.repeat) return;
+		e.target.value = value;
 
-		const upper_key = e.key.toUpperCase();
-		if (!/^[0-9A-F]+$/.test(upper_key) && !(upper_key === '-' && answer.length === 0)) return;
-
-		answer += upper_key;
+		check_answer();
 	};
 
 	const get_number = () => Math.trunc(Math.random() * 0xf);
 
 	const generate_task = () => {
+		input.value = '';
+
 		const signs = ['-', '+', '*', '/'];
 		const sign = signs[Math.trunc(Math.random() * signs.length)];
 
@@ -51,10 +56,10 @@
 	const check_answer = () => {
 		if (!task) return;
 
-		if (answer !== task.result.toString(16).toUpperCase()) return;
+		const user_answer = input.value.toLowerCase();
+		const right_answer = task.result.toString(16).toLowerCase();
 
-		answer = '';
-		generate_task();
+		if (user_answer == right_answer) generate_task();
 	};
 
 	onMount(() => generate_task());
@@ -63,18 +68,15 @@
 <section>
 	<div class="task">
 		{#if task}
-			{task.left.toString(16).toUpperCase()}
+			{task.left.toString(16)}
 			{task.sign}
-			{task.right.toString(16).toUpperCase()}
+			{task.right.toString(16)}
 		{/if}
 	</div>
 
-	<!-- svelte-ignore a11y-autofocus -->
-	<input autofocus on:blur={(e) => e.currentTarget.focus()} on:keydown={handle_keydown} />
+	<div style="height: 1rem" />
 
-	<div class="answer">
-		{answer}
-	</div>
+	<input bind:this={input} class="answer" on:input={handle_input} />
 </section>
 
 <style lang="scss">
@@ -86,15 +88,24 @@
 		row-gap: 24px;
 		justify-items: stretch;
 		grid-template-rows: 1fr auto 1fr;
+
+		text-transform: uppercase;
 	}
 
 	input {
 		position: absolute;
-		top: 0;
-		height: 0;
-		opacity: 0;
+
+		width: 100%;
+		height: 100%;
 		border: none;
 		outline: none;
+		background: transparent;
+
+		text-align: inherit;
+		font-size: inherit;
+
+		caret-color: transparent;
+		text-transform: inherit;
 	}
 
 	.task {
@@ -109,8 +120,6 @@
 	}
 
 	.answer {
-		height: 1rem;
-
 		color: #4d5156;
 		@media (prefers-color-scheme: dark) {
 			color: #bdc1c6;
